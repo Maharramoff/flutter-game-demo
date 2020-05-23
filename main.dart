@@ -16,13 +16,14 @@ int randomInt(int min, int max) {
   return rng.nextInt(max + 1 - min) + min;
 }
 
-void beginFrame(Duration timeStamp) {
+ui.Picture paint(ui.Rect paintBounds) {
   final ui.PictureRecorder recorder = ui.PictureRecorder();
   final ui.Canvas canvas = ui.Canvas(recorder, ctx);
+  canvas.drawRect(ui.Rect.fromLTWH(x, y, objWidth, objHeight), ui.Paint()..color = color);
+  return recorder.endRecording();
+}
 
-  canvas.drawRect(ui.Rect.fromLTWH(x, y, objWidth, objHeight),
-      ui.Paint()..color = color);
-  final ui.Picture picture = recorder.endRecording();
+ui.Scene composite(ui.Picture picture, ui.Rect paintBounds) {
   final Float64List deviceTransform = Float64List(16)
     ..[0] = devicePixelRatio
     ..[5] = devicePixelRatio
@@ -32,7 +33,13 @@ void beginFrame(Duration timeStamp) {
     ..pushTransform(deviceTransform)
     ..addPicture(ui.Offset.zero, picture)
     ..pop();
-  ui.window.render(sceneBuilder.build());
+  return sceneBuilder.build();
+}
+
+void beginFrame(Duration timeStamp) {
+  final ui.Picture picture = paint(ctx);
+  final ui.Scene scene = composite(picture, ctx);
+  ui.window.render(scene);
   ui.window.scheduleFrame();
 }
 
