@@ -4,8 +4,9 @@ import 'dart:ui' as ui;
 
 double devicePixelRatio = ui.window.devicePixelRatio;
 ui.Rect ctx = ui.Offset.zero & (ui.window.physicalSize / devicePixelRatio);
-ui.Color playerColor = ui.Color.fromARGB(255, 178, 150, 125);
+ui.Color playerColor = ui.Color.fromARGB(255, 230, 190, 174);
 ui.Color sceneColor = ui.Color.fromARGB(255, 236, 248, 248);
+ui.Color groundColor = ui.Color.fromARGB(255, 178, 150, 125);
 double playerHeight = 100;
 double playerWidth = 50;
 double groundOffset = 50;
@@ -25,6 +26,7 @@ ui.Picture paint(ui.Rect paintBounds) {
   final ui.Canvas canvas = ui.Canvas(recorder, ctx);
   updatePlayer();
   drawBackground(canvas, sceneColor);
+  drawGround(canvas, groundColor);
   drawPlayer(canvas, playerColor);
   return recorder.endRecording();
 }
@@ -66,6 +68,11 @@ void drawPlayer(canvas, color) {
 
 void drawBackground(canvas, color) {
   ui.Rect rect = ui.Rect.fromLTWH(0, 0, ctx.width, ctx.height);
+  canvas.drawRect(rect, ui.Paint()..color = color);
+}
+
+void drawGround(canvas, color) {
+  ui.Rect rect = createPlayer(0, ctx.height - groundOffset + 1, ctx.width, ctx.height);
   canvas.drawRect(rect, ui.Paint()..color = color);
 }
 
