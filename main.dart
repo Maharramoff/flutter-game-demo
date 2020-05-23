@@ -4,12 +4,14 @@ import 'dart:ui' as ui;
 
 double devicePixelRatio = ui.window.devicePixelRatio;
 ui.Rect ctx = ui.Offset.zero & (ui.window.physicalSize / devicePixelRatio);
-ui.Color color;
-double objHeight = 100;
-double objWidth = 50;
+ui.Color playerColor = ui.Color.fromARGB(255, 0, 255, 0);
+double playerHeight = 100;
+double playerWidth = 50;
 double groundOffset = 50;
-double x = 100;
-double y = ctx.height - objHeight - groundOffset;
+double playerX = 100;
+double playerY;
+double playerDx = 1;
+double playerDy = 0;
 
 int randomInt(int min, int max) {
   var rng = new math.Random();
@@ -19,7 +21,8 @@ int randomInt(int min, int max) {
 ui.Picture paint(ui.Rect paintBounds) {
   final ui.PictureRecorder recorder = ui.PictureRecorder();
   final ui.Canvas canvas = ui.Canvas(recorder, ctx);
-  canvas.drawRect(ui.Rect.fromLTWH(x, y, objWidth, objHeight), ui.Paint()..color = color);
+  updatePlayer();
+  drawPlayer(canvas, playerColor);
   return recorder.endRecording();
 }
 
@@ -36,6 +39,20 @@ ui.Scene composite(ui.Picture picture, ui.Rect paintBounds) {
   return sceneBuilder.build();
 }
 
+ui.Rect createPlayer(x, y, w, h) {
+  return ui.Rect.fromLTWH(x, y, w, h);
+}
+
+void updatePlayer() {
+  playerX += playerDx;
+  playerY += playerDy;
+}
+
+void drawPlayer(canvas, color) {
+  ui.Rect rect = createPlayer(playerX, playerY, playerWidth, playerHeight);
+  canvas.drawRect(rect, ui.Paint()..color = color);
+}
+
 void beginFrame(Duration timeStamp) {
   final ui.Picture picture = paint(ctx);
   final ui.Scene scene = composite(picture, ctx);
@@ -43,8 +60,12 @@ void beginFrame(Duration timeStamp) {
   ui.window.scheduleFrame();
 }
 
+void init() {
+  playerY = ctx.height - playerHeight - groundOffset;
+}
+
 void main() {
-  color = ui.Color.fromARGB(255, 0, 255, 0);
+  init();
   ui.window.onBeginFrame = beginFrame;
   ui.window.scheduleFrame();
 }
