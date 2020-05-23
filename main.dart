@@ -12,6 +12,7 @@ double playerX = 100;
 double playerY;
 double playerDx = 1;
 double playerDy = 0;
+double playerSpeed = 5;
 
 int randomInt(int min, int max) {
   var rng = new math.Random();
@@ -44,8 +45,8 @@ ui.Rect createPlayer(x, y, w, h) {
 }
 
 void updatePlayer() {
-  playerX += playerDx;
-  playerY += playerDy;
+  playerX += playerDx * playerSpeed;
+  playerY += playerDy * playerSpeed;
 }
 
 void drawPlayer(canvas, color) {
