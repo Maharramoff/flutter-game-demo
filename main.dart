@@ -8,7 +8,7 @@ ui.Color playerColor = ui.Color.fromARGB(255, 0, 255, 0);
 double playerHeight = 100;
 double playerWidth = 50;
 double groundOffset = 50;
-double playerX = 100;
+double playerX = 0;
 double playerY;
 double playerDx = 1;
 double playerDy = 0;
@@ -45,8 +45,16 @@ ui.Rect createPlayer(x, y, w, h) {
 }
 
 void updatePlayer() {
+  handleBounds();
   playerX += playerDx * playerSpeed;
   playerY += playerDy * playerSpeed;
+}
+
+void handleBounds() {
+  if ((playerX + playerWidth >= ctx.width && playerDx > 0) ||
+      (playerX <= 0 && playerDx < 0)) {
+    playerDx = -playerDx;
+  }
 }
 
 void drawPlayer(canvas, color) {
