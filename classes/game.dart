@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:math' as math;
+import 'package:flutter/material.dart';
 
 import 'package:demo_game/classes/obstacle.dart';
 import 'package:demo_game/classes/player.dart';
@@ -44,24 +45,27 @@ class Game implements AnimationFrame {
     this.player.handleGravity(this.world);
     this.obstacle.handleBounds(this.world);
     this.obstacle.update();
-  }
-
-  void draw(ui.Canvas canvas) {
-    this.world.draw(canvas);
-    this.player.draw(canvas);
-    this.obstacle.draw(canvas);
-  }
-
-  ui.Picture paint(ui.Rect rectBounds) {
-    final ui.PictureRecorder recorder = ui.PictureRecorder();
-    final ui.Canvas canvas = ui.Canvas(recorder, rectBounds);
-    this.update();
     if (this.collisionBetween(this.player, this.obstacle)) {
       this.over = true;
       this.running = false;
       this.player.speed = 0;
       this.obstacle.speed = 0;
     }
+  }
+
+  void draw(ui.Canvas canvas) {
+    this.world.draw(canvas);
+    this.player.draw(canvas);
+    this.obstacle.draw(canvas);
+    if (this.over) {
+      this.drawGameOver(canvas);
+    }
+  }
+
+  ui.Picture paint(ui.Rect rectBounds) {
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final ui.Canvas canvas = ui.Canvas(recorder, rectBounds);
+    this.update();
     this.draw(canvas);
     return recorder.endRecording();
   }
@@ -96,5 +100,33 @@ class Game implements AnimationFrame {
   bool collisionBetween(rect1, rect2) {
     final ui.Rect intersection = this.intersectionBetween(rect1.shape, rect2.shape);
     return intersection.height >= -1 && intersection.width >= -1;
+  }
+
+  void drawGameOver(ui.Canvas canvas) {
+    final textStyle = TextStyle(
+      color: Colors.black,
+      fontSize: 50,
+      fontWeight: FontWeight.bold,
+      fontFamily: 'Monospace',
+    );
+    final textSpan = TextSpan(
+      text: 'GAME OVER',
+      style: textStyle,
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.justify,
+    );
+    textPainter.layout(
+      minWidth: 0,
+      maxWidth: double.infinity,
+    );
+    final textWidth = textPainter.size.width;
+    final textHeight = textPainter.size.height;
+    final offsetX = this.world.width / 2 - textWidth / 2;
+    final offsetY = (this.world.height - this.world.groundHeight) / 2 - textHeight / 2;
+    final offset = Offset(offsetX, offsetY);
+    textPainter.paint(canvas, offset);
   }
 }
