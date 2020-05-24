@@ -19,18 +19,21 @@ abstract class Animation {
 
 class Player {
   final ui.Color color = ui.Color.fromARGB(255, 50, 50, 50);
-  ui.Rect worldBounds, shape;
+  ui.Rect shape;
   final double height = 100;
   final double width = 50;
-  double x, y, dx, dy, speed;
+  double x, y, dx, dy, speed, gravity, jumpHeight;
+  bool grounded;
 
-  Player(worldBounds, x, y, speed) {
-    this.worldBounds = worldBounds;
+  Player(x, y, speed) {
     this.x = x;
     this.y = y;
-    this.dx = 1;
-    this.dy = 0;
+    this.dx = 1.0;
+    this.dy = 0.0;
     this.speed = speed;
+    this.gravity = 1.0;
+    this.grounded = true;
+    this.jumpHeight = 6.0;
   }
 
   void draw(canvas) {
@@ -43,10 +46,26 @@ class Player {
     this.shape = ui.Rect.fromLTWH(this.x, this.y, this.width, this.height);
   }
 
-  void handleBounds() {
-    if ((this.x + this.width >= this.worldBounds.width && this.dx > 0) ||
+  void handleBounds(World world) {
+    if ((this.x + this.width >= world.width && this.dx > 0) ||
         (this.x <= 0 && this.dx < 0)) {
       this.dx = -this.dx;
+    }
+  }
+
+  void handleGravity(World world)
+  {
+    // Gravity
+    if (this.y + this.height < world.height - world.groundHeight)
+    {
+      this.dy += this.gravity;
+      this.grounded = false;
+    }
+    else
+    {
+      this.dy = 0;
+      this.y = world.height - world.groundHeight - this.height;
+      this.grounded = true;
     }
   }
 }
@@ -54,7 +73,7 @@ class Player {
 class World {
   ui.Color skyColor, groundColor;
   ui.Rect bounds, skyRect, groundRect;
-  double groundHeight;
+  double height, width, groundHeight;
 
   World(skyColor, groundColor, groundHeight) {
     this.bounds =
@@ -62,6 +81,8 @@ class World {
     this.skyColor = skyColor;
     this.groundColor = groundColor;
     this.groundHeight = groundHeight;
+    this.height = this.bounds.height;
+    this.width = this.bounds.width;
   }
 
   void draw(canvas) {
@@ -96,8 +117,7 @@ class Game implements Animation {
     this.world = new World(ui.Color.fromARGB(255, 236, 248, 248),
         ui.Color.fromARGB(255, 178, 150, 125), 50.0);
 
-    this.player = new Player(this.world.bounds, 0.0,
-        this.world.bounds.height - 100 - this.world.groundHeight, 2.0);
+    this.player = new Player(50.0, 200.0, 2.0);
   }
 
   void start() {
@@ -114,8 +134,9 @@ class Game implements Animation {
 
   void update() {
     this.world.update();
-    this.player.handleBounds();
+    this.player.handleBounds(this.world);
     this.player.update();
+    this.player.handleGravity(this.world);
   }
 
   void draw(ui.Canvas canvas) {
