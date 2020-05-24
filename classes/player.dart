@@ -21,6 +21,17 @@ class Player {
     this.jumpHeight = 6.0;
   }
 
+  Player.withDx(x, y, dx) {
+    this.x = x;
+    this.y = y;
+    this.dx = dx;
+    this.dy = 0.0;
+    this.speed = 1;
+    this.gravity = 1.0;
+    this.grounded = true;
+    this.jumpHeight = 6.0;
+  }
+
   void draw(canvas) {
     canvas.drawRect(this.shape, ui.Paint()..color = this.color);
   }
