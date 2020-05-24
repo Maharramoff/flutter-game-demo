@@ -9,6 +9,14 @@ class Helper {
   }
 }
 
+abstract class Animation {
+  void animate(Duration timeStamp);
+
+  ui.Picture paint(ui.Rect rectBounds);
+
+  ui.Scene composite(ui.Picture picture);
+}
+
 class Player {
   final ui.Color color = ui.Color.fromARGB(255, 50, 50, 50);
   ui.Rect worldBounds, shape;
@@ -80,11 +88,7 @@ class World {
   }
 }
 
-class Game {
-  ui.Canvas canvas;
-  ui.PictureRecorder recorder;
-  ui.Picture picture;
-  ui.Scene scene;
+class Game implements Animation {
   World world;
   Player player;
 
@@ -96,15 +100,15 @@ class Game {
         this.world.bounds.height - 100 - this.world.groundHeight, 2.0);
   }
 
-  void start(){
+  void start() {
     ui.window.onBeginFrame = this.animate;
     ui.window.scheduleFrame();
   }
 
   void animate(Duration timeStamp) {
-    this.picture = this.paint();
-    this.scene = this.composite();
-    ui.window.render(this.scene);
+    final ui.Picture picture = this.paint(this.world.bounds);
+    final ui.Scene scene = this.composite(picture);
+    ui.window.render(scene);
     ui.window.scheduleFrame();
   }
 
@@ -114,20 +118,20 @@ class Game {
     this.player.update();
   }
 
-  void draw() {
-    this.world.draw(this.canvas);
-    this.player.draw(this.canvas);
+  void draw(ui.Canvas canvas) {
+    this.world.draw(canvas);
+    this.player.draw(canvas);
   }
 
-  ui.Picture paint() {
-    this.recorder = ui.PictureRecorder();
-    this.canvas = ui.Canvas(recorder, this.world.bounds);
+  ui.Picture paint(ui.Rect rectBounds) {
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final ui.Canvas canvas = ui.Canvas(recorder, rectBounds);
     this.update();
-    this.draw();
+    this.draw(canvas);
     return recorder.endRecording();
   }
 
-  ui.Scene composite() {
+  ui.Scene composite(ui.Picture picture) {
     final Float64List deviceTransform = Float64List(16)
       ..[0] = ui.window.devicePixelRatio
       ..[5] = ui.window.devicePixelRatio
@@ -135,7 +139,7 @@ class Game {
       ..[15] = 1.0;
     final ui.SceneBuilder sceneBuilder = ui.SceneBuilder()
       ..pushTransform(deviceTransform)
-      ..addPicture(ui.Offset.zero, this.picture)
+      ..addPicture(ui.Offset.zero, picture)
       ..pop();
     return sceneBuilder.build();
   }
