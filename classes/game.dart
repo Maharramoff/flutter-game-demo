@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'dart:math' as math;
 
 import 'package:demo_game/classes/obstacle.dart';
 import 'package:demo_game/classes/player.dart';
@@ -13,8 +14,7 @@ class Game implements AnimationFrame {
   bool running, over;
 
   Game() {
-    this.world = new World(ui.Color.fromARGB(255, 236, 248, 248),
-        ui.Color.fromARGB(255, 178, 150, 125), 50.0);
+    this.world = new World(ui.Color.fromARGB(255, 236, 248, 248), ui.Color.fromARGB(255, 178, 150, 125), 50.0);
 
     this.player = new Player.withDx(50.0, 200.0, 0.0);
     this.obstacle = new Obstacle(4.0, this.world);
@@ -56,6 +56,12 @@ class Game implements AnimationFrame {
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final ui.Canvas canvas = ui.Canvas(recorder, rectBounds);
     this.update();
+    if (this.collisionBetween(this.player, this.obstacle)) {
+      this.over = true;
+      this.running = false;
+      this.player.speed = 0;
+      this.obstacle.speed = 0;
+    }
     this.draw(canvas);
     return recorder.endRecording();
   }
@@ -80,5 +86,15 @@ class Game implements AnimationFrame {
         ui.window.scheduleFrame();
       }
     }
+  }
+
+  ui.Rect intersectionBetween(ui.Rect rect1, ui.Rect rect2) {
+    return ui.Rect.fromLTRB(math.max(rect1.left, rect2.left), math.max(rect1.top, rect2.top),
+        math.min(rect1.right, rect2.right), math.min(rect1.bottom, rect2.bottom));
+  }
+
+  bool collisionBetween(rect1, rect2) {
+    final ui.Rect intersection = this.intersectionBetween(rect1.shape, rect2.shape);
+    return intersection.height >= -1 && intersection.width >= -1;
   }
 }
