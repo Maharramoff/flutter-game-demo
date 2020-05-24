@@ -1,6 +1,6 @@
 import 'dart:ui' as ui;
 
-abstract class Animation {
+abstract class AnimationFrame {
   void animate(Duration timeStamp);
 
   ui.Picture paint(ui.Rect rectBounds);
