@@ -18,6 +18,7 @@ class Game implements Animation {
 
   void start() {
     ui.window.onBeginFrame = this.animate;
+    ui.window.onPointerDataPacket = this.handlePointer;
     ui.window.scheduleFrame();
   }
 
@@ -59,5 +60,14 @@ class Game implements Animation {
       ..addPicture(ui.Offset.zero, picture)
       ..pop();
     return sceneBuilder.build();
+  }
+
+  void handlePointer(ui.PointerDataPacket packet) {
+    for (ui.PointerData pointer in packet.data) {
+      if (pointer.change == ui.PointerChange.down) {
+        this.player.jump(height: 15);
+        ui.window.scheduleFrame();
+      }
+    }
   }
 }

@@ -49,4 +49,11 @@ class Player {
       this.grounded = true;
     }
   }
+
+  void jump({double height = 0}) {
+    if (this.grounded) {
+      this.dy = -(height > 0 ? height : this.jumpHeight);
+      this.grounded = false;
+    }
+  }
 }
