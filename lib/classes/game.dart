@@ -16,7 +16,6 @@ class Game implements AnimationFrame {
 
   Game() {
     this.world = new World(ui.Color.fromARGB(255, 236, 248, 248), ui.Color.fromARGB(255, 178, 150, 125), 50.0);
-
     this.player = new Player.withDx(50.0, 200.0, 0.0);
     this.obstacle = new Obstacle(4.0, this.world);
     this.running = true;
